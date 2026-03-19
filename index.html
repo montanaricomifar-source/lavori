@@ -580,39 +580,44 @@ function toggleMicModal(){
   if(!checkSR())return;
   if(LMODAL){
     LMODAL=false;
-    if(RMODAL){try{RMODAL.stop();}catch(e){}}
+    if(RMODAL){try{RMODAL.abort();}catch(e){}}
+    RMODAL=null;
     var btn=document.getElementById('mm-btn');
     if(btn){btn.innerHTML='&#127908; Detta';btn.style.background='';btn.style.color='';}
     return;
   }
   LMODAL=true;
   var nf=document.getElementById('nt-n');
-  if(nf && !nf._acc) nf._acc='';
+  if(nf) nf._acc='';
   var btn=document.getElementById('mm-btn');
   if(btn){btn.innerHTML='&#9209; Ferma';btn.style.background='#FFEBEE';btn.style.color='#C62828';}
+  var gotResult=false;
   function startRec(){
     if(!LMODAL) return;
+    gotResult=false;
     var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
     RMODAL=new SR();
     RMODAL.lang='it-IT';
     RMODAL.continuous=false;
     RMODAL.interimResults=false;
     RMODAL.onresult=function(e){
-      var txt='';
-      for(var i=0;i<e.results.length;i++){
-        if(e.results[i].isFinal) txt+=e.results[i][0].transcript;
-      }
-      if(txt.trim()){
-        var nf2=document.getElementById('nt-n');
-        if(nf2){
-          nf2._acc=(nf2._acc?nf2._acc+' ':'')+txt.trim();
-          nf2.value=nf2._acc;
+      if(gotResult) return;
+      gotResult=true;
+      var last=e.results[e.results.length-1];
+      if(last && last.isFinal){
+        var txt=last[0].transcript.trim();
+        if(txt){
+          var nf2=document.getElementById('nt-n');
+          if(nf2){
+            nf2._acc=(nf2._acc?nf2._acc+' ':'')+txt;
+            nf2.value=nf2._acc;
+          }
         }
       }
     };
-    RMODAL.onerror=function(){};
+    RMODAL.onerror=function(){gotResult=true;};
     RMODAL.onend=function(){
-      if(LMODAL) setTimeout(startRec,100);
+      if(LMODAL) setTimeout(startRec,150);
     };
     try{RMODAL.start();}catch(e){}
   }
@@ -627,7 +632,8 @@ function toggleSpeechNotes(){
   if(!checkSR())return;
   if(LNOTES){
     LNOTES=false;
-    if(RNOTES){try{RNOTES.stop();}catch(e){}}
+    if(RNOTES){try{RNOTES.abort();}catch(e){}}
+    RNOTES=null;
     var btn=document.getElementById('notes-mic-btn');
     if(btn){btn.innerHTML='<span class="mdot"></span> Registra vocale';btn.classList.remove('on');}
     return;
@@ -636,27 +642,32 @@ function toggleSpeechNotes(){
   LNOTES=true;
   var btn=document.getElementById('notes-mic-btn');
   if(btn){btn.innerHTML='<span class="mdot"></span> Ferma';btn.classList.add('on');}
+  var lastNoteId=-1;
   function startRecNotes(){
     if(!LNOTES) return;
+    var gotNote=false;
     var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
     RNOTES=new SR();
     RNOTES.lang='it-IT';
     RNOTES.continuous=false;
     RNOTES.interimResults=false;
     RNOTES.onresult=function(e){
-      var txt='';
-      for(var i=0;i<e.results.length;i++){
-        if(e.results[i].isFinal) txt+=e.results[i][0].transcript;
-      }
-      if(txt.trim()){
-        if(!NDB[CU.id]) NDB[CU.id]=[];
-        NDB[CU.id].push({id:NID++,text:txt.trim(),date:nl()});
-        updateNotesList();
+      if(gotNote) return;
+      gotNote=true;
+      var last=e.results[e.results.length-1];
+      if(last && last.isFinal){
+        var txt=last[0].transcript.trim();
+        if(txt && NID!==lastNoteId){
+          lastNoteId=NID;
+          if(!NDB[CU.id]) NDB[CU.id]=[];
+          NDB[CU.id].push({id:NID++,text:txt,date:nl()});
+          updateNotesList();
+        }
       }
     };
-    RNOTES.onerror=function(){};
+    RNOTES.onerror=function(){gotNote=true;};
     RNOTES.onend=function(){
-      if(LNOTES) setTimeout(startRecNotes,100);
+      if(LNOTES) setTimeout(startRecNotes,150);
     };
     try{RNOTES.start();}catch(e){}
   }
