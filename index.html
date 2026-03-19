@@ -176,7 +176,7 @@ var USERS = [
 ];
 var CU=null, TAB=0, COMPACT=false, PANEL=null;
 var AFU='', AFF='', AFT='';
-var LNOTES=false, LMODAL=false, RNOTES=null, RMODAL=null, INTERIM='';
+var LNOTES=false, LMODAL=false, RNOTES=null, RMODAL=null, INTERIM='', NOTES_ACC='';
 var NID=1, NDB={}, NXT=6;
 
 function today(){ return new Date().toISOString().split('T')[0]; }
@@ -241,7 +241,7 @@ function openModal(type,data){
     h+='<div class="modal-title">'+(t?'Modifica lavoro':'Nuovo lavoro')+'</div>';
     h+='<div class="fi"><label>Data creazione</label><input type="date" id="nt-c" value="'+fC+'"/></div>';
     h+='<div class="fi"><label>Titolo (breve)</label><input id="nt-t" value="'+eh(fT)+'" placeholder="Es: Riparazione cancello"/></div>';
-    h+='<div class="fi"><label>Note &nbsp;<button id="mm-btn" class="nb nb-t" onclick="toggleMicModal()">&#127908; Detta</button></label>';
+    h+='<div class="fi"><label>Note</label><button id="mm-btn" onclick="toggleMicModal()" style="display:block;width:100%;padding:12px;margin-bottom:8px;background:#f0f0f0;border:1px solid #e0e0e0;border-radius:10px;font-size:15px;cursor:pointer;font-family:inherit;font-weight:500;">&#127908; Avvia dettatura</button>';
     h+='<textarea id="nt-n" placeholder="Dettagli, materiali...">'+eh(fN)+'</textarea></div>';
     h+='<div class="fi"><label>Priorita\'</label><div class="pt">';
     h+='<button class="pb'+(fP==='normal'?' pn':'')+'" id="pb-n" onclick="sp(\'normal\')">Normale</button>';
@@ -319,6 +319,7 @@ function selUser(id){
   document.getElementById('hav').textContent=CU.initials;
   document.getElementById('hname').textContent=CU.name.split(' ')[0];
   document.getElementById('greeting').textContent='Ciao, '+CU.name.split(' ')[0];
+  try{localStorage.setItem('lavori_user',id);}catch(e){}
   closeModal();
 }
 function doAssign(id,uid){ var t=getTask(id); if(t)t.assignee=uid; closeModal(); }
@@ -529,7 +530,7 @@ function renderBot(closed){
   }
   if(PANEL==='notes'){
     var b='<div class="notes-tb">';
-    b+='<button id="notes-mic-btn" class="mic-notes'+(LNOTES?' on':'')+'" onclick="toggleSpeechNotes()"><span class="mdot"></span> '+(LNOTES?'Ferma':'Registra vocale')+'</button>';
+    b+='<button id="notes-mic-btn" class="mic-notes'+(LNOTES?' on':'')+'" onclick="toggleSpeechNotes()" style="font-size:14px;padding:9px 18px;"><span class="mdot"></span> '+(LNOTES?'Ferma e salva':'&#127908; Registra vocale')+'</button>';
     if(CU) b+='<span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#888">'+avH(CU.id,16)+' '+CU.name.split(' ')[0]+'</span>';
     b+='</div>';
     if(!CU){ b+='<div class="notes-nouser">Seleziona un utente per gli appunti</div>'; }
@@ -631,41 +632,43 @@ function startMic(){
 function toggleSpeechNotes(){
   if(!checkSR())return;
   if(LNOTES){
+    // FERMA: salva tutto il testo accumulato come UNA nota
     LNOTES=false;
-    if(RNOTES){try{RNOTES.abort();}catch(e){}}
-    RNOTES=null;
+    if(RNOTES){try{RNOTES.abort();}catch(e){}} RNOTES=null;
     var btn=document.getElementById('notes-mic-btn');
     if(btn){btn.innerHTML='<span class="mdot"></span> Registra vocale';btn.classList.remove('on');}
+    if(NOTES_ACC.trim() && CU){
+      if(!NDB[CU.id]) NDB[CU.id]=[];
+      NDB[CU.id].push({id:NID++,text:NOTES_ACC.trim(),date:nl()});
+      NOTES_ACC='';
+      updateNotesList();
+    }
     return;
   }
   if(!CU){alert('Seleziona prima il tuo nome.');return;}
   LNOTES=true;
+  NOTES_ACC='';
   var btn=document.getElementById('notes-mic-btn');
-  if(btn){btn.innerHTML='<span class="mdot"></span> Ferma';btn.classList.add('on');}
-  var lastNoteId=-1;
+  if(btn){btn.innerHTML='<span class="mdot"></span> Ferma e salva';btn.classList.add('on');}
   function startRecNotes(){
     if(!LNOTES) return;
-    var gotNote=false;
     var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
     RNOTES=new SR();
     RNOTES.lang='it-IT';
     RNOTES.continuous=false;
     RNOTES.interimResults=false;
     RNOTES.onresult=function(e){
-      if(gotNote) return;
-      gotNote=true;
+      // accumula senza salvare
       var last=e.results[e.results.length-1];
       if(last && last.isFinal){
         var txt=last[0].transcript.trim();
-        if(txt && NID!==lastNoteId){
-          lastNoteId=NID;
-          if(!NDB[CU.id]) NDB[CU.id]=[];
-          NDB[CU.id].push({id:NID++,text:txt,date:nl()});
-          updateNotesList();
-        }
+        if(txt) NOTES_ACC=(NOTES_ACC?NOTES_ACC+' ':'')+txt;
+        // aggiorna preview nel pannello
+        var it=document.getElementById('notes-interim');
+        if(it){it.style.display='block';it.textContent='&#127908; '+NOTES_ACC+'...';}
       }
     };
-    RNOTES.onerror=function(){gotNote=true;};
+    RNOTES.onerror=function(){};
     RNOTES.onend=function(){
       if(LNOTES) setTimeout(startRecNotes,150);
     };
@@ -674,6 +677,20 @@ function toggleSpeechNotes(){
   startRecNotes();
 }
 
+// ripristina utente salvato
+try{
+  var savedUser=localStorage.getItem('lavori_user');
+  if(savedUser){
+    var u=gu(savedUser);
+    if(u){
+      CU=u;
+      document.getElementById('hav').className='av '+CU.av;
+      document.getElementById('hav').textContent=CU.initials;
+      document.getElementById('hname').textContent=CU.name.split(' ')[0];
+      document.getElementById('greeting').textContent='Ciao, '+CU.name.split(' ')[0];
+    }
+  }
+}catch(e){}
 render();
 </script>
 
