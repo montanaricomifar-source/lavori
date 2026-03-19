@@ -233,6 +233,7 @@ function openModal(type,data){
     h+='</div>';
   } else if(type==='form'){
     var editId=(data&&data.editId!=null)?data.editId:null;
+    var fromNoteId=(data&&data.fromNoteId!=null)?data.fromNoteId:null;
     var t=editId!=null?getTask(editId):null;
     var fT=t?t.title:'', fN=t?t.note:(data&&data.note?data.note:'');
     var fP=t?t.priority:'normal', fD=t?t.due:'';
@@ -250,7 +251,8 @@ function openModal(type,data){
     h+='<div class="fi"><label>Scadenza (opzionale)</label><input type="date" id="nt-d" value="'+fD+'"/></div>';
     h+='<div class="fi"><label>Assegna a</label><select id="nt-a">'+mkUserOptions(fA)+'</select></div>';
     h+='<div class="ma"><button class="bc" onclick="closeModal()">Annulla</button>';
-    h+='<button class="bs" onclick="saveTask('+(editId!=null?editId:'null')+')">'+(t?'Salva modifiche':'Salva')+'</button></div>';
+    h+='<button class="bs" onclick="saveTask('+(editId!=null?editId:'null')+','+(fromNoteId!=null?fromNoteId:'null')+')">'+(t?'Salva modifiche':'Salva')+'</button></div>';
+    if(fromNoteId!=null) h+='<p style="font-size:11px;color:#888;margin-top:8px;text-align:center">Salvando, l&#39;appunto verr&#224; eliminato</p>';
   } else if(type==='assign'){
     h='<button class="xcl" onclick="closeModal()">&#10005;</button><div class="modal-title">Assegna lavoro</div><div class="user-list">';
     for(var i=0;i<USERS.length;i++){
@@ -328,10 +330,10 @@ function sp(p){
   document.getElementById('pb-n').className='pb'+(p==='normal'?' pn':'');
   document.getElementById('pb-u').className='pb'+(p==='urgent'?' pu':'');
 }
-function saveTask(editId){
+function saveTask(editId,fromNoteId){
   var te=document.getElementById('nt-t'), title=te.value.trim();
   if(!title){te.style.borderColor='#D32F2F';te.focus();return;}
-  if(RMODAL){try{RMODAL.stop();}catch(e){}}
+  if(RMODAL){try{RMODAL.abort();}catch(e){}} RMODAL=null; LMODAL=false;
   var priority=document.getElementById('pb-u').classList.contains('pu')?'urgent':'normal';
   var note=document.getElementById('nt-n').value.trim();
   var assignee=document.getElementById('nt-a').value||null;
@@ -342,6 +344,10 @@ function saveTask(editId){
     if(t){t.title=title;t.note=note;t.assignee=assignee;t.created=created;t.due=due;t.priority=priority;}
   } else {
     tasks.unshift({id:NXT++,title:title,note:note,assignee:assignee,created:created,due:due,priority:priority,closed:null});
+  }
+  // elimina la nota sorgente SOLO se il lavoro è stato salvato con successo
+  if(fromNoteId!=null && CU){
+    NDB[CU.id]=(NDB[CU.id]||[]).filter(function(x){return x.id!==fromNoteId;});
   }
   closeModal();
 }
@@ -530,7 +536,7 @@ function renderBot(closed){
   }
   if(PANEL==='notes'){
     var b='<div class="notes-tb">';
-    b+='<button id="notes-mic-btn" class="mic-notes'+(LNOTES?' on':'')+'" onclick="toggleSpeechNotes()" style="font-size:14px;padding:9px 18px;"><span class="mdot"></span> '+(LNOTES?'Ferma e salva':'&#127908; Registra vocale')+'</button>';
+    b+='<button id="notes-mic-btn" class="mic-notes'+(LNOTES?' on':'')+'" onclick="toggleSpeechNotes()" style="font-size:15px;padding:13px 20px;width:100%;justify-content:center;border-radius:10px;"><span class="mdot" style="width:10px;height:10px;"></span> '+(LNOTES?'&#9209; Ferma e salva':'&#127908; Registra vocale')+'</button>';
     if(CU) b+='<span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#888">'+avH(CU.id,16)+' '+CU.name.split(' ')[0]+'</span>';
     b+='</div>';
     if(!CU){ b+='<div class="notes-nouser">Seleziona un utente per gli appunti</div>'; }
@@ -567,8 +573,7 @@ function noteToTask(nid){
   if(!CU)return;
   var n=(NDB[CU.id]||[]).filter(function(x){return x.id===nid;})[0];
   if(!n)return;
-  NDB[CU.id]=(NDB[CU.id]||[]).filter(function(x){return x.id!==nid;});
-  openModal('form',{note:n.text});
+  openModal('form',{note:n.text,fromNoteId:nid});
 }
 function checkSR(){
   if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){
