@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lavori">
+<meta name="theme-color" content="#1565C0">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAACSUlEQVR42u3cwQmDQBBAUZvIIVVsVWkh9aUGLchcRQgs4mZnhrf8s4f4QEYyLo/XR7rc4icQQAJIAAkgCSABJIAEkASQABJAAkgCSAAJIAEkASSABJAAEkASQAJIh7bWOgNIAAkgAQTQuX3SAQgggACKB6ifxYgAAggggAACCCCAAAIIIIBmAXq+11sCCCCAAAIIIIAAAggggAACCCCAAAIIIH/nAAgggAACCCCAAAIIIIAAygPIajNAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAVQd0J7kjAYU7QAEEEAAAQQQQAABBBBAAAEEEEAAZXtxpzgvNgECCCABJIAAAggggAASQAIIIIAAAggggAASQAABBBBAAAEEkAASQAABBBBAAAkgAQQQQAABBJBqA7JYaLEQIIAAAggggAACCCCAAAIIIIAAqgXIh8bH3TBfqgcIoNk3PtqjDSCAAAIIIIAAAggggExhAAEEEEAAAQQQQAABZAoDCCCAAAIIIIAAAgggU5gpDCCAAAIIIIAAAggggDIAqrSOAxBAAAEEEEAAAQQQQKYwgAACCCCAAAIIIIAAqrDhmn3CAggggAACCCCAAAIIIDgAAggggACSABJAAkgA/b+ttf7CXgEggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggASQAJIAEkACSABJAAkgASSABJAEkAASQAJIAkgACSABJP3sC6e9KmvHHzRgAAAAAElFTkSuQmCC">
+<link rel="manifest" href="data:application/manifest+json,%7B%0A%20%20%22name%22%3A%20%22Lavori%20-%20COMIFAR%22%2C%0A%20%20%22short_name%22%3A%20%22Lavori%22%2C%0A%20%20%22start_url%22%3A%20%22.%22%2C%0A%20%20%22display%22%3A%20%22standalone%22%2C%0A%20%20%22background_color%22%3A%20%22%231565C0%22%2C%0A%20%20%22theme_color%22%3A%20%22%231565C0%22%2C%0A%20%20%22icons%22%3A%20%5B%0A%20%20%20%20%7B%22src%22%3A%20%22data%3Aimage/png%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAACSUlEQVR42u3cwQmDQBBAUZvIIVVsVWkh9aUGLchcRQgs4mZnhrf8s4f4QEYyLo/XR7rc4icQQAJIAAkgCSABJIAEkASQABJAAkgCSAAJIAEkASSABJAAEkASQAJIh7bWOgNIAAkgAQTQuX3SAQgggACKB6ifxYgAAggggAACCCCAAAIIIIBmAXq%2B11sCCCCAAAIIIIAAAggggAACCCCAAAIIIH/nAAgggAACCCCAAAIIIIAAygPIajNAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAQQQQAABBBBAAAEEEEAAAVQd0J7kjAYU7QAEEEAAAQQQQAABBBBAAAEEEEAAZXtxpzgvNgECCCABJIAAAggggAASQAIIIIAAAggggAASQAABBBBAAAEEkAASQAABBBBAAAkgAQQQQAABBJBqA7JYaLEQIIAAAggggAACCCCAAAIIIIAAqgXIh8bH3TBfqgcIoNk3PtqjDSCAAAIIIIAAAggggExhAAEEEEAAAQQQQAABZAoDCCCAAAIIIIAAAgggU5gpDCCAAAIIIIAAAggggDIAqrSOAxBAAAEEEEAAAQQQQKYwgAACCCCAAAIIIIAAqrDhmn3CAggggAACCCCAAAIIIDgAAggggACSABJAAkgA/b%2Bttf7CXgEggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggASQAJIAEkACSABJAAkgASSABJAEkAASQAJIAkgACSABJP3sC6e9KmvHHzRgAAAAAElFTkSuQmCC%22%2C%20%22sizes%22%3A%20%22192x192%22%2C%20%22type%22%3A%20%22image/png%22%7D%2C%0A%20%20%20%20%7B%22src%22%3A%20%22data%3Aimage/png%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAIAAAB7GkOtAAAK30lEQVR42u3csRGDMBREQZogcBWqyi24PtcABeGY1B5L%2Brq9eQUwGtBmbPvzLUkKbHMEkgQASRIAJEkAkCQBQJIEAEkSACRJAJAkAUCSBABJEgAkSQCQJAFAkgQASRIAJEkAkCQBQJIEAEkSACRJAJAkAUCSBABJEgAkSQCQJABIkgAgSQKAJAkAkiQASJIAIEkCgCQJAJIkAEiSACBJAoAkCQCSJABIkgAgSQKAJAkAkiQASJIAIEkCgCQJAJIkAEiSACBJAoAkAcApSBIAJEkAkCQBQJIEAEkSACRJAJAkAUCSBABJEgAkSQCQJAFAkgQASRIAJEkAkCQBQJIEAEnTdrbWMwcOAEkAEAAkAUAAkAQAAUASAAQASQAQACQBAABOQRIAACBJAACAJAEAANKXXfbbAAAAAAgAAAAAAAAgAAAAAAAAgAAAAAAIAAIAAAAgAAgAAACAACAAhAPQ%2BTpePgBIAAAAAAAgAQAAAACABAAAAAAAEgAAAAAACAAGAAAAQAAwAAAAAAKAAQAAABAADAAAAIAAYAAAAAAEAAMAAAAgAAAAAAAAgAAAAAAAAAACAAAAAAAACAAAAAAAACAAAAAAAACA1gHg8TpKBwAAAEAAAAAAAAAAAQAAAAAAAAQAAAAAAAAQAAAAAAAAQAAAAAAAAAABAAAAAAAABAAAAAAAABAAAAAAAABAAAAAAAAAAAEAAAAAAAAEAAAAAAAAEAAAIAAAQAAAgAAAAAEAAAIAAAQAAAgAEgAAIABIAACAACABAAACgAQAAAAAABIAAAAAAEgAmBaA/rmRASABAAAAAIAAAAAAAAAAAgAAAAAAAAgAAAAAAAAgAAAAAAAAgAAAAAAAAAACAAAAAAAACAAAAAAAACAAAAAAAACAAAAAAAAAAAIAAAAgAAgAAACAACAAAAAAAoAAAAAACAACAAAAIAAIAAAQAJyCAAAAAUACAAAEAAkAABAAJAAAQACQAAAAAUACAAAEAAkAABAAJAAAQACQAAAAAUAAAAAABAABAAAAEAAEAAAAQAAQAAAAAAFAAAAAAAQAAQAA3iIBQAAAgAQAAQAAEgAEAABIABAAACABQAAAgAQAAQAAEgAEAABIABAAACABQAAAgAAgAQAAAoAEAAAIABIAACAASAAAgAAgAQAAAoAEAAAIABIAACAASAAAgAAgAAAAAAKAAAAAAAgAAgAAACAACAAAAIAAIAAAAAACgAAAAAAIAAIAACQACAAAkAAgAABAAoAAAAAJAAIAACQACAAAkAAgAABAAoAAAAAJAAIAAAQApyAAAEAAkAAAAAFAAgAABAAJAAAQACQAAEAAkAAAAAFAAgAABAAJAAAQACQAAEAAEAAAAAABQAAAAAAEAAEAAAAQAAQAAABAABAAAAAAAUAAAIAEAAEAABIABAAASAAQAAAgAUAAAIAEAAEAABIABAAASKEAXFZ84QDY2AEAAAYAAAAAAAAwAAAAAAAAgAEAAAAAAAAMAAAAAAAAYAAAAAAAAAADAAAAAAAAGAAMAAAAgAHAAAAAABgADAAAAIABwAAAAAAYAAwAAACAAcAAAAAAAAAABgAAAAAAADAAAAAAAACAAQAAAAAAAAwAAAAAAABgAAAAAAAAAAMAAAwAADAAAMAAAAADAAAMAAAwAABg2QtISg4AAACABAAAAAAAEgAAAAAASAAAAAAAIAEAAAAAgAQAAAAAABIAAAAASQAAAAAkAQAAAJAEAAAAQBIAAAAASQAAAAAkAQAAAJAEAAAAQBIAAAAASQAAAAAkAQAAAJAEAAAAQBIAAAAASQAAAAAkAQAAAJAEAAAAQBIAAAAASQAAAAAkAAAAAACQAAAAAABAAgAAAAAACQAAAAAAJAAAAAAAkAAAAAD4hCQAAAAAkgAAAABIAgAAACAJAAAAgCQAAAAAkgAAAABIAgAAACAJAAAAgCQAAAAAkgAAAABIAgAAACAJAAAAgCQAAAAAkgAAAABIAgAAACAJAAAAgCQAAAAAEgAAAAAASAAAAAAAIAEAAAAAgAQAAAAAABIAAAAAAEgAAAAAACABAAAAkAQAAABAEgAAAABJAAAAACQBAAAAkAQAAABAEgAAAABJAAAAACQBAAAAkAQAAABAEgAAMBcANnbhF5CNHQAAYAAAAAAAAAADAAAAAAAAGAAAAAAAAMAAAAAAAAAABgAAAAAAADAAAAAAAACAAcAAAAAAGAAMAAAAgAHAAAAAABgADAAAAIABwAAAAAAYAAwAAAAAAABgAAAAAAAAAAMAAAAAAAAYAAAAAAAAwAAAAAAAAAAGAAAAAAAAMAAAwAAAAAMAAAwAADAAJACg6gCHA%2BAVEgAEAABIABAAACABQAAAgAQAAQAAEgBcoDaTHwAQAAQAAABAABAAAAAAAUAAAAAABAABAAAAEAAEAAAAQACQGxwAEgAAYACQAAAAA4AEAAAYACQAAMAAIAEAAAYACQAAAAAAJACoJGD%2BBioBQAAAgAQAAQAAEgAEAABIABAAACABQAAAgAQAAQAAEgAEAABIABAAACABQAAAgAAgAQAAAoAEAAAIABIAACAASAAAgACgOheo/zkDQAIAAAAAAAkAAAAAACQAAAAAABAABAAAAEAAEAAAAAABQAAAAAAEAAEAAAAQAAQAAABAABAAAAAAAUAAAAAABAABAAAAEAAEAAAAQAAQwAAAAAFAAAAAAAQAAQAAABAABAAAAEAAEAAAAAABQAAAgAQAAQAAEgAEAABIABAAACABQAAAgAQAAQAAEgAEAABIABAAACABQAAAgAAgAeAf17f5BAAgAAAAAAKAAAAAAAgAAgAAACAACAAAAIAAIAAAAAACgAAAAAAIAAIAAAAgAAgAAACAACAAAAAAAoAAAAAACAACAAAAIAAIAAAAgAAgAPgbqAQAAQAAEgAEAAAIABIAACAASAAAgAAgAQAAAoAEAAAIABIAACAASAAAgAAgAQAAAoAEAAAIAAIAAAAgAAgAAACAACAAmL91CgACgAFAABAADAACgABgABAABAADgAAgABgABAABwAAgAAgABgABQAAwAAgAAoABQAAQAAwAAoAAYAAQAAQAAwAAHIEA4IIWACQAAEAAkAAAAAFAAgAABAAJAAAQACQAAEAAkAAAAAFAAgAABAAJAAAQACRJAJAkAUCSBABJEgAkSQCQJAFAkgQASRIAJEkAkCQBQLfO1oaU8LQVH1gCAAAAAAAJAAAAAAAEAAEAAAAQAAQAAABAABAAAAAAAUAAAAAABAABAAAAEAAEAAAAQAAQAAAAAAFAAAAAAAQAAQAAABAABAAAAEAAEAAAAAABQAAAAAAEAAEAAAAQAAQAAABAABAAAAAAAUAAAAAABAABAAASAAQAAEgAEAAAIAFAAACABAAAAAAAEgAAAAAASAAAAAAAIAAIAAAAgAAgAAAAAAKAAAAAAAgAAgAAACAACAAAAIAAIAAAAAACgCQJAJIkAEiSACBJAoAkCQCSJABIkgAgSQKAJAkAkiQASJIAIEkCgCQJAJIkAEiSACBJAoAkCQCSBABJEgAkSQCQJAFAkgQASRIAJEkAkCQBQJIEAEkSACRJAJAkAUCSBABJEgAkSQCQJAFAkgQASRIAJEkAkCQBQJIEAEkSACRJAJAkAEiSACBJAoAkCQCSJABIkgAgSQKAJAkAkiQASJIAIEkCgCQJAJIkAEiSuvYB8O0Sc2kj/rQAAAAASUVORK5CYII%3D%22%2C%20%22sizes%22%3A%20%22512x512%22%2C%20%22type%22%3A%20%22image/png%22%7D%0A%20%20%5D%0A%7D">
 <title>Lavori</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -118,6 +125,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 </style>
 </head>
 <body>
+
+<div id="install-banner" style="display:none;background:#1565C0;color:white;padding:10px 16px;font-size:12px;text-align:center;position:sticky;top:0;z-index:99;">
+  &#128241; Per usarla come app: tasto Condividi &#10548; poi "Aggiungi a schermata Home"
+  <button onclick="document.getElementById('install-banner').style.display='none'" style="background:none;border:none;color:white;font-size:16px;cursor:pointer;margin-left:8px">&#10005;</button>
+</div>
 <div id="app">
   <div class="hdr">
     <div>
@@ -333,6 +345,39 @@ function saveTask(editId){
   closeModal();
 }
 
+
+function updateNotesList(){
+  var wrap = document.getElementById('notes-list-wrap');
+  if(!wrap) return;
+  var n = CU ? (NDB[CU.id]||[]) : [];
+  var h = '';
+  if(!n.length){
+    h='<div class="notes-empty">Nessun appunto. Premi "Registra vocale".</div>';
+  } else {
+    var rev=n.slice().reverse();
+    for(var i=0;i<rev.length;i++){
+      var x=rev[i];
+      h+='<div class="note-item"><div class="note-txt">'+eh(x.text)+'</div>';
+      h+='<div class="note-foot"><span class="note-dt">'+x.date+'</span>';
+      h+='<div class="note-acts"><button class="nb nb-t" onclick="noteToTask('+x.id+')">+ Lavoro</button>';
+      h+='<button class="nb nb-d" onclick="delNote('+x.id+')">Elimina</button></div></div></div>';
+    }
+  }
+  wrap.innerHTML = h;
+  var it = document.getElementById('notes-interim');
+  if(it) it.style.display='none';
+  // aggiorna contatore
+  var cnt = document.querySelector('.bot-toggle.on .bt-cnt');
+  if(cnt) cnt.textContent = n.length;
+}
+function updateInterim(){
+  var it = document.getElementById('notes-interim');
+  if(it){
+    if(INTERIM){ it.style.display='block'; it.textContent='\uD83D\uDD34 '+INTERIM+'...'; }
+    else it.style.display='none';
+  }
+}
+
 function render(){
   document.getElementById('app').classList.toggle('compact',COMPACT);
   var open=tasks.filter(function(t){return !t.closed;});
@@ -484,14 +529,14 @@ function renderBot(closed){
   }
   if(PANEL==='notes'){
     var b='<div class="notes-tb">';
-    b+='<button class="mic-notes'+(LNOTES?' on':'')+'" onclick="toggleSpeechNotes()"><span class="mdot"></span> '+(LNOTES?'Ferma':'Registra vocale')+'</button>';
+    b+='<button id="notes-mic-btn" class="mic-notes'+(LNOTES?' on':'')+'" onclick="toggleSpeechNotes()"><span class="mdot"></span> '+(LNOTES?'Ferma':'Registra vocale')+'</button>';
     if(CU) b+='<span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#888">'+avH(CU.id,16)+' '+CU.name.split(' ')[0]+'</span>';
     b+='</div>';
     if(!CU){ b+='<div class="notes-nouser">Seleziona un utente per gli appunti</div>'; }
     else{
-      if(LNOTES&&INTERIM) b+='<div class="interim">&#128308; '+eh(INTERIM)+'...</div>';
+      b+='<div id="notes-interim" class="interim" style="display:'+(LNOTES&&INTERIM?'block':'none')+'">&#128308; '+eh(INTERIM)+'...</div>';
       var n=NDB[CU.id]||[];
-      b+='<div class="note-list">';
+      b+='<div id="notes-list-wrap">';
       if(!n.length) b+='<div class="notes-empty">Nessun appunto. Premi "Registra vocale".</div>';
       else{
         var rev=n.slice().reverse();
@@ -555,7 +600,7 @@ function toggleMicModal(){
       if(e.results[i].isFinal) fin+=e.results[i][0].transcript;
       else int+=e.results[i][0].transcript;
     }
-    if(fin.trim()) acc+=(acc?' ':'')+fin.trim();
+    if(fin.trim()) acc=(acc?acc+' ':'')+fin.trim();
     var nf=document.getElementById('nt-n');
     if(nf) nf.value=acc+(int?' '+int:'');
   };
@@ -571,9 +616,22 @@ function toggleSpeechNotes(){
   if(LNOTES){if(RNOTES)RNOTES.stop();return;}
   var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   RNOTES=new SR(); RNOTES.lang='it-IT'; RNOTES.continuous=true; RNOTES.interimResults=true;
-  RNOTES.onstart=function(){LNOTES=true;INTERIM='';rbOnly();};
-  RNOTES.onend=function(){LNOTES=false;INTERIM='';rbOnly();};
-  RNOTES.onerror=function(){LNOTES=false;INTERIM='';rbOnly();};
+  RNOTES.onstart=function(){
+    LNOTES=true;INTERIM='';
+    var btn=document.getElementById('notes-mic-btn');
+    if(btn){btn.innerHTML='<span class="mdot"></span> Ferma';btn.classList.add('on');}
+  };
+  RNOTES.onend=function(){
+    LNOTES=false;INTERIM='';
+    var btn=document.getElementById('notes-mic-btn');
+    if(btn){btn.innerHTML='<span class="mdot"></span> Registra vocale';btn.classList.remove('on');}
+    updateNotesList();
+  };
+  RNOTES.onerror=function(){
+    LNOTES=false;INTERIM='';
+    var btn=document.getElementById('notes-mic-btn');
+    if(btn){btn.innerHTML='<span class="mdot"></span> Registra vocale';btn.classList.remove('on');}
+  };
   RNOTES.onresult=function(e){
     var fin='',int='';
     for(var i=e.resultIndex;i<e.results.length;i++){
@@ -585,13 +643,40 @@ function toggleSpeechNotes(){
       if(!NDB[CU.id]) NDB[CU.id]=[];
       NDB[CU.id].push({id:NID++,text:fin.trim(),date:nl()});
       INTERIM='';
+      updateNotesList();
+    } else {
+      updateInterim();
     }
-    rbOnly();
   };
   RNOTES.start();
 }
 
 render();
+</script>
+
+
+<script>
+var isIos = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+var isInStandalone = ('standalone' in navigator) && navigator.standalone;
+if (isIos && !isInStandalone) {
+  document.getElementById('install-banner').style.display = 'block';
+}
+var deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  deferredPrompt = e;
+  var bn = document.getElementById('install-banner');
+  bn.innerHTML = '&#128241; Installa come app &nbsp;<button onclick="installApp()" style="background:white;color:#1565C0;border:none;border-radius:20px;padding:4px 12px;cursor:pointer;font-weight:600;font-size:12px">Installa</button>';
+  bn.style.display = 'block';
+});
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt = null;
+    document.getElementById('install-banner').style.display = 'none';
+  }
+}
+
 </script>
 </body>
 </html>
