@@ -420,6 +420,11 @@ function openModal(type,data){
     h+='<div style="font-size:12px;color:#888;margin-top:2px">Note visibili solo toccando il lavoro</div></div>';
     h+='<label class="tog-wrap"><input type="checkbox"'+(COMPACT?' checked':'')+' onchange="COMPACT=this.checked;closeModal()"><div class="tog-track"></div><div class="tog-thumb"></div></label>';
     h+='</div>';
+    h+='<div style="margin-top:20px"><div style="font-size:13px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px">Backup e ripristino</div>';
+    h+='<button onclick="exportBackup()" style="display:block;width:100%;padding:12px;margin-bottom:10px;background:#f0f0f0;border:1px solid #e0e0e0;border-radius:10px;font-size:14px;cursor:pointer;font-family:inherit;text-align:left;">&#128190; Scarica backup (JSON)</button>';
+    h+='<button onclick="importBackup()" style="display:block;width:100%;padding:12px;background:#f0f0f0;border:1px solid #e0e0e0;border-radius:10px;font-size:14px;cursor:pointer;font-family:inherit;text-align:left;">&#128228; Ripristina da backup</button>';
+    h+='<div style="font-size:11px;color:#bbb;margin-top:8px">Il backup include tutti i lavori e gli appunti</div>';
+    h+='</div>';
   }
   inn.innerHTML=h;
   document.getElementById('modal-overlay').classList.add('open');
@@ -525,6 +530,83 @@ function updateInterim(){
     if(INTERIM){ it.style.display='block'; it.textContent='\uD83D\uDD34 '+INTERIM+'...'; }
     else it.style.display='none';
   }
+}
+
+
+function exportBackup(){
+  var data = {
+    version: 1,
+    exported: new Date().toISOString(),
+    tasks: tasks,
+    notes: NDB
+  };
+  var json = JSON.stringify(data, null, 2);
+  var blob = new Blob([json], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'lavori_backup_'+today()+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importBackup(){
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      try{
+        var data = JSON.parse(ev.target.result);
+        if(!data.version || !data.tasks){
+          alert('File non valido o non riconosciuto.');
+          return;
+        }
+        if(!confirm('Importare il backup del '+fd(data.exported.split('T')[0])+'?\n\nAttenzione: i dati esistenti nel database verranno sovrascritti.')) return;
+        showLoading();
+        // cancella tutto e reinserisce
+        supa.from('lavori_tasks').delete().neq('id','00000000-0000-0000-0000-000000000000')
+        .then(function(){
+          var rows = data.tasks.map(function(t){
+            return {
+              title: t.title, note: t.note||'',
+              assignee: t.assignee||null, priority: t.priority||'normal',
+              created: t.created||today(), due: t.due||null, closed: t.closed||null
+            };
+          });
+          if(!rows.length){ loadTasks(); return; }
+          return supa.from('lavori_tasks').insert(rows);
+        }).then(function(){
+          // ripristina note
+          var allNotes = [];
+          if(data.notes){
+            Object.keys(data.notes).forEach(function(uid){
+              (data.notes[uid]||[]).forEach(function(n){
+                allNotes.push({user_id:uid, text:n.text, note_date:n.date});
+              });
+            });
+          }
+          if(!allNotes.length) return supa.from('lavori_notes').delete().neq('id','00000000-0000-0000-0000-000000000000');
+          return supa.from('lavori_notes').delete().neq('id','00000000-0000-0000-0000-000000000000')
+            .then(function(){ return supa.from('lavori_notes').insert(allNotes); });
+        }).then(function(){
+          NDB = {};
+          loadTasks().then(function(){ if(CU) loadNotes(); });
+          alert('Backup importato con successo!');
+        }).catch(function(err){
+          hideLoading();
+          alert('Errore durante il ripristino: '+JSON.stringify(err));
+        });
+      } catch(e){
+        alert('Errore nel leggere il file: '+e.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
 }
 
 function render(){
