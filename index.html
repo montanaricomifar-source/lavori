@@ -578,33 +578,45 @@ function checkSR(){
 }
 function toggleMicModal(){
   if(!checkSR())return;
-  if(LMODAL){if(RMODAL)RMODAL.stop();return;}
-  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  RMODAL=new SR(); RMODAL.lang='it-IT'; RMODAL.continuous=true; RMODAL.interimResults=true;
-  var acc='';
-  RMODAL.onstart=function(){
-    LMODAL=true;
-    var nf=document.getElementById('nt-n'); if(nf) acc=nf.value;
-    var btn=document.getElementById('mm-btn');
-    if(btn){btn.innerHTML='&#9209; Ferma';btn.style.background='#FFEBEE';btn.style.color='#C62828';}
-  };
-  RMODAL.onend=function(){
+  if(LMODAL){
     LMODAL=false;
+    if(RMODAL){try{RMODAL.stop();}catch(e){}}
     var btn=document.getElementById('mm-btn');
     if(btn){btn.innerHTML='&#127908; Detta';btn.style.background='';btn.style.color='';}
-  };
-  RMODAL.onerror=function(){LMODAL=false;};
-  RMODAL.onresult=function(e){
-    var fin='',int='';
-    for(var i=e.resultIndex;i<e.results.length;i++){
-      if(e.results[i].isFinal) fin+=e.results[i][0].transcript;
-      else int+=e.results[i][0].transcript;
-    }
-    if(fin.trim()) acc=(acc?acc+' ':'')+fin.trim();
-    var nf=document.getElementById('nt-n');
-    if(nf) nf.value=acc+(int?' '+int:'');
-  };
-  RMODAL.start();
+    return;
+  }
+  LMODAL=true;
+  var nf=document.getElementById('nt-n');
+  if(nf && !nf._acc) nf._acc='';
+  var btn=document.getElementById('mm-btn');
+  if(btn){btn.innerHTML='&#9209; Ferma';btn.style.background='#FFEBEE';btn.style.color='#C62828';}
+  function startRec(){
+    if(!LMODAL) return;
+    var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    RMODAL=new SR();
+    RMODAL.lang='it-IT';
+    RMODAL.continuous=false;
+    RMODAL.interimResults=false;
+    RMODAL.onresult=function(e){
+      var txt='';
+      for(var i=0;i<e.results.length;i++){
+        if(e.results[i].isFinal) txt+=e.results[i][0].transcript;
+      }
+      if(txt.trim()){
+        var nf2=document.getElementById('nt-n');
+        if(nf2){
+          nf2._acc=(nf2._acc?nf2._acc+' ':'')+txt.trim();
+          nf2.value=nf2._acc;
+        }
+      }
+    };
+    RMODAL.onerror=function(){};
+    RMODAL.onend=function(){
+      if(LMODAL) setTimeout(startRec,100);
+    };
+    try{RMODAL.start();}catch(e){}
+  }
+  startRec();
 }
 function startMic(){
   if(!checkSR())return;
@@ -613,42 +625,42 @@ function startMic(){
 }
 function toggleSpeechNotes(){
   if(!checkSR())return;
-  if(LNOTES){if(RNOTES)RNOTES.stop();return;}
-  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  RNOTES=new SR(); RNOTES.lang='it-IT'; RNOTES.continuous=true; RNOTES.interimResults=true;
-  RNOTES.onstart=function(){
-    LNOTES=true;INTERIM='';
-    var btn=document.getElementById('notes-mic-btn');
-    if(btn){btn.innerHTML='<span class="mdot"></span> Ferma';btn.classList.add('on');}
-  };
-  RNOTES.onend=function(){
-    LNOTES=false;INTERIM='';
+  if(LNOTES){
+    LNOTES=false;
+    if(RNOTES){try{RNOTES.stop();}catch(e){}}
     var btn=document.getElementById('notes-mic-btn');
     if(btn){btn.innerHTML='<span class="mdot"></span> Registra vocale';btn.classList.remove('on');}
-    updateNotesList();
-  };
-  RNOTES.onerror=function(){
-    LNOTES=false;INTERIM='';
-    var btn=document.getElementById('notes-mic-btn');
-    if(btn){btn.innerHTML='<span class="mdot"></span> Registra vocale';btn.classList.remove('on');}
-  };
-  RNOTES.onresult=function(e){
-    var fin='',int='';
-    for(var i=e.resultIndex;i<e.results.length;i++){
-      if(e.results[i].isFinal) fin+=e.results[i][0].transcript;
-      else int+=e.results[i][0].transcript;
-    }
-    INTERIM=int;
-    if(fin.trim()){
-      if(!NDB[CU.id]) NDB[CU.id]=[];
-      NDB[CU.id].push({id:NID++,text:fin.trim(),date:nl()});
-      INTERIM='';
-      updateNotesList();
-    } else {
-      updateInterim();
-    }
-  };
-  RNOTES.start();
+    return;
+  }
+  if(!CU){alert('Seleziona prima il tuo nome.');return;}
+  LNOTES=true;
+  var btn=document.getElementById('notes-mic-btn');
+  if(btn){btn.innerHTML='<span class="mdot"></span> Ferma';btn.classList.add('on');}
+  function startRecNotes(){
+    if(!LNOTES) return;
+    var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    RNOTES=new SR();
+    RNOTES.lang='it-IT';
+    RNOTES.continuous=false;
+    RNOTES.interimResults=false;
+    RNOTES.onresult=function(e){
+      var txt='';
+      for(var i=0;i<e.results.length;i++){
+        if(e.results[i].isFinal) txt+=e.results[i][0].transcript;
+      }
+      if(txt.trim()){
+        if(!NDB[CU.id]) NDB[CU.id]=[];
+        NDB[CU.id].push({id:NID++,text:txt.trim(),date:nl()});
+        updateNotesList();
+      }
+    };
+    RNOTES.onerror=function(){};
+    RNOTES.onend=function(){
+      if(LNOTES) setTimeout(startRecNotes,100);
+    };
+    try{RNOTES.start();}catch(e){}
+  }
+  startRecNotes();
 }
 
 render();
