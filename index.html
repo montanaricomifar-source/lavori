@@ -483,8 +483,9 @@ function saveTask(editId,fromNoteId){
     });
   }
   if(fromNoteId!=null && CU){
-    NDB[CU.id]=(NDB[CU.id]||[]).filter(function(x){return x.id!==fromNoteId;});
-    dbDeleteNote(fromNoteId);
+    var fnid=String(fromNoteId);
+    NDB[CU.id]=(NDB[CU.id]||[]).filter(function(x){return String(x.id)!==fnid;});
+    dbDeleteNote(fnid);
   }
   render();
 }
@@ -501,10 +502,14 @@ function updateNotesList(){
     var rev=n.slice().reverse();
     for(var i=0;i<rev.length;i++){
       var x=rev[i];
-      h+='<div class="note-item"><div class="note-txt">'+eh(x.text)+'</div>';
+      var sid=String(x.id);
+      h+='<div class="note-item">';
+      h+='<div class="note-txt">'+eh(x.text)+'</div>';
       h+='<div class="note-foot"><span class="note-dt">'+x.date+'</span>';
-      h+='<div class="note-acts"><button class="nb nb-t" onclick="noteToTask('+x.id+')">+ Lavoro</button>';
-      h+='<button class="nb nb-d" onclick="delNote('+x.id+')">Elimina</button></div></div></div>';
+      h+='<div class="note-acts">';
+      h+='<button class="nb nb-t" onclick="noteToTask(\''+ sid +'\')">+ Lavoro</button>';
+      h+='<button class="nb nb-d" onclick="delNote(\''+ sid +'\')">Elimina</button>';
+      h+='</div></div></div>';
     }
   }
   wrap.innerHTML = h;
@@ -687,10 +692,13 @@ function renderBot(closed){
         var rev=n.slice().reverse();
         for(var i=0;i<rev.length;i++){
           var x=rev[i];
+          var sid2=String(x.id);
           b+='<div class="note-item"><div class="note-txt">'+eh(x.text)+'</div>';
           b+='<div class="note-foot"><span class="note-dt">'+x.date+'</span>';
-          b+='<div class="note-acts"><button class="nb nb-t" onclick="noteToTask('+x.id+')">+ Lavoro</button>';
-          b+='<button class="nb nb-d" onclick="delNote('+x.id+')">Elimina</button></div></div></div>';
+          b+='<div class="note-acts">';
+          b+='<button class="nb nb-t" onclick="noteToTask(\''+ sid2 +'\')">+ Lavoro</button>';
+          b+='<button class="nb nb-d" onclick="delNote(\''+ sid2 +'\')">Elimina</button>';
+          b+='</div></div></div>';
         }
       }
       b+='</div>';
@@ -704,13 +712,15 @@ function togglePanel(n){ PANEL=PANEL===n?null:n; render(); }
 function rbOnly(){ renderBot(tasks.filter(function(t){return t.closed;})); }
 function delNote(nid){
   if(!CU)return;
-  NDB[CU.id]=(NDB[CU.id]||[]).filter(function(x){return x.id!==nid;});
+  nid=String(nid);
+  NDB[CU.id]=(NDB[CU.id]||[]).filter(function(x){return String(x.id)!==nid;});
   dbDeleteNote(nid);
   rbOnly();
 }
 function noteToTask(nid){
   if(!CU)return;
-  var n=(NDB[CU.id]||[]).filter(function(x){return x.id===nid;})[0];
+  nid=String(nid);
+  var n=(NDB[CU.id]||[]).filter(function(x){return String(x.id)===nid;})[0];
   if(!n)return;
   openModal('form',{note:n.text,fromNoteId:nid});
 }
