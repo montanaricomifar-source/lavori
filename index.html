@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lavori</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #111; }
+#app { max-width: 480px; margin: 0 auto; background: #fff; min-height: 100vh; }
+.hdr { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid #e5e5e5; background:#fff; position:sticky; top:0; z-index:10; }
+.app-title { font-size:17px; font-weight:600; }
+.greeting { font-size:11px; color:#888; margin-top:1px; }
+.hdr-r { display:flex; align-items:center; gap:8px; }
+.icon-btn { width:34px; height:34px; border-radius:8px; background:#f0f0f0; border:1px solid #e0e0e0; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:15px; }
+.user-btn { display:flex; align-items:center; gap:6px; background:#f0f0f0; border:1px solid #e0e0e0; border-radius:20px; padding:5px 10px; cursor:pointer; font-size:13px; }
+.av { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:600; flex-shrink:0; }
+.av-mm{background:#B5D4F4;color:#0C447C;} .av-lm{background:#C0DD97;color:#27500A;} .av-rf{background:#FAC775;color:#633806;} .av-om{background:#F4C0D1;color:#72243E;}
+.av-none{background:#e0e0e0;color:#888;}
+.tabs { display:flex; border-bottom:1px solid #e5e5e5; background:#fff; }
+.tab { flex:1; padding:9px 2px; font-size:11px; text-align:center; color:#888; cursor:pointer; border-bottom:2px solid transparent; line-height:1.3; background:none; border-top:none; border-left:none; border-right:none; font-family:inherit; }
+.tab.on { color:#111; border-bottom-color:#111; font-weight:600; }
+.abar { display:flex; gap:8px; padding:10px 16px; background:#fff; }
+.btn-new { flex:1; background:#111; color:#fff; border:none; border-radius:10px; padding:10px; font-size:13px; cursor:pointer; font-family:inherit; font-weight:500; }
+.btn-mic { width:40px; height:40px; background:#f0f0f0; border:1px solid #e0e0e0; border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:18px; flex-shrink:0; }
+.card { margin:0 16px 7px; background:#fff; border:1px solid #e5e5e5; border-radius:12px; padding:11px 13px; cursor:pointer; }
+.card:hover { border-color:#bbb; }
+.card.c-mine{border-left:3px solid #1976D2;} .card.c-una{border-left:3px solid #F57C00;} .card.c-oth{border-left:3px solid #777;} .card.c-urg{border-left:3px solid #D32F2F;} .card.c-arc{border-left:3px solid #ddd;}
+.card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+.card-title { font-size:13px; font-weight:600; color:#111; line-height:1.35; }
+.card-meta { display:flex; align-items:center; gap:5px; margin-top:5px; flex-wrap:wrap; }
+.tag { font-size:10px; padding:2px 8px; border-radius:20px; font-weight:500; white-space:nowrap; }
+.t-una{background:#FFF3E0;color:#E65100;} .t-blu{background:#E3F2FD;color:#1565C0;} .t-arc{background:#f0f0f0;color:#888;} .t-urg{background:#FFEBEE;color:#C62828;} .t-exp{background:#FFEBEE;color:#C62828;} .t-due{background:#FFF3E0;color:#E65100;}
+.card-date { font-size:10px; color:#999; }
+.card-note { font-size:12px; color:#666; margin-top:6px; line-height:1.4; white-space:pre-wrap; }
+.compact .card { padding:7px 11px; margin-bottom:4px; }
+.compact .card-note { display:none; }
+.compact .card.show-note .card-note { display:block; }
+.sbtn { font-size:11px; padding:4px 10px; border-radius:20px; cursor:pointer; font-family:inherit; white-space:nowrap; border:1px solid; }
+.sb-a{background:#FFF3E0;border-color:#FFCC80;color:#E65100;} .sb-t{background:#f0f0f0;border-color:#ddd;color:#555;} .sb-c{background:#E8F5E9;border-color:#A5D6A7;color:#2E7D32;}
+.empty { padding:28px 16px; text-align:center; color:#999; font-size:13px; }
+.cards { padding:8px 0; }
+.recap { padding:8px 0; }
+.rc-block { margin:0 16px 8px; border:1px solid #e5e5e5; border-radius:12px; overflow:hidden; }
+.rc-head { display:flex; align-items:center; gap:9px; padding:10px 13px; background:#f8f8f8; }
+.rc-name { font-size:13px; font-weight:600; flex:1; }
+.rc-cnt { font-size:11px; padding:2px 8px; border-radius:20px; background:#fff; border:1px solid #e5e5e5; color:#888; }
+.rc-row { display:flex; align-items:center; gap:7px; padding:8px 13px; border-top:1px solid #f0f0f0; cursor:pointer; }
+.rc-row:hover { background:#fafafa; }
+.rc-ttl { font-size:12px; flex:1; line-height:1.3; }
+.rc-none { padding:9px 13px; font-size:12px; color:#999; }
+.bot-row { display:flex; gap:8px; margin:14px 16px 0; }
+.bot-toggle { flex:1; display:flex; align-items:center; justify-content:space-between; padding:9px 12px; border:1px solid #e5e5e5; border-radius:12px; cursor:pointer; background:#f8f8f8; }
+.bot-toggle.on { border-color:#1976D2; background:#E3F2FD; }
+.bot-toggle.on .bt-lbl { color:#1565C0; }
+.bt-left { display:flex; align-items:center; gap:6px; }
+.bt-lbl { font-size:12px; font-weight:500; }
+.bt-cnt { font-size:10px; padding:2px 6px; border-radius:20px; background:#fff; border:1px solid #e5e5e5; color:#888; }
+.bot-panel { margin:7px 16px 0; border:1px solid #e5e5e5; border-radius:12px; overflow:hidden; }
+.af { padding:8px 12px; display:flex; gap:5px; flex-wrap:wrap; border-bottom:1px solid #f0f0f0; background:#f8f8f8; }
+.af select,.af input { font-size:11px; padding:4px 7px; border:1px solid #e5e5e5; border-radius:7px; background:#fff; color:#111; font-family:inherit; }
+.af input[type=date] { width:122px; }
+.af-clr { font-size:11px; color:#888; cursor:pointer; padding:4px; border:none; background:none; font-family:inherit; text-decoration:underline; }
+.arch-body .card { margin:6px 9px; }
+.arch-body .card:last-child { margin-bottom:9px; }
+.arch-none { padding:14px; text-align:center; color:#999; font-size:12px; }
+.notes-tb { display:flex; align-items:center; gap:7px; padding:9px 12px; border-bottom:1px solid #f0f0f0; background:#f8f8f8; }
+.mic-notes { display:flex; align-items:center; gap:5px; padding:6px 12px; border-radius:20px; border:1px solid #e5e5e5; background:#fff; font-size:12px; cursor:pointer; font-family:inherit; white-space:nowrap; }
+.mic-notes.on { background:#FFEBEE; border-color:#EF9A9A; color:#C62828; animation:pulse 1s infinite; }
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+.mdot { width:7px; height:7px; border-radius:50%; background:currentColor; display:inline-block; }
+.interim { font-size:12px; color:#888; font-style:italic; padding:7px 12px; border-bottom:1px solid #f0f0f0; }
+.note-list { max-height:260px; overflow-y:auto; }
+.note-item { padding:10px 12px; border-bottom:1px solid #f0f0f0; }
+.note-item:last-child { border-bottom:none; }
+.note-txt { font-size:13px; line-height:1.4; white-space:pre-wrap; margin-bottom:5px; }
+.note-foot { display:flex; align-items:center; justify-content:space-between; gap:5px; }
+.note-dt { font-size:10px; color:#999; }
+.note-acts { display:flex; gap:4px; }
+.nb { font-size:11px; padding:3px 9px; border-radius:20px; border:1px solid; cursor:pointer; font-family:inherit; white-space:nowrap; }
+.nb-t{background:#E3F2FD;border-color:#90CAF9;color:#1565C0;} .nb-d{background:#f0f0f0;border-color:#e0e0e0;color:#666;}
+.notes-empty,.notes-nouser { padding:18px 12px; text-align:center; color:#999; font-size:12px; }
+.pb-end { padding-bottom:32px; }
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:100; align-items:flex-end; justify-content:center; }
+.modal-overlay.open { display:flex; }
+.modal-box { background:#fff; border-radius:20px 20px 0 0; padding:20px 16px 40px; width:100%; max-width:480px; max-height:88vh; overflow-y:auto; }
+.modal-title { font-size:16px; font-weight:600; margin-bottom:16px; }
+.xcl { float:right; background:none; border:none; font-size:20px; cursor:pointer; color:#999; line-height:1; margin-top:-2px; font-family:inherit; }
+.fi { margin-bottom:12px; }
+.fi label { display:block; font-size:11px; color:#888; margin-bottom:3px; font-weight:500; }
+.fi input,.fi textarea,.fi select { width:100%; border:1px solid #e5e5e5; border-radius:10px; padding:9px 11px; font-size:14px; font-family:inherit; background:#fff; color:#111; }
+.fi textarea { resize:vertical; min-height:72px; }
+.fi input:focus,.fi textarea:focus,.fi select:focus { outline:none; border-color:#1976D2; }
+.ma { display:flex; gap:8px; margin-top:16px; }
+.bc { flex:1; padding:11px; border:1px solid #e5e5e5; border-radius:10px; background:#f0f0f0; color:#111; font-size:14px; cursor:pointer; font-family:inherit; }
+.bs { flex:2; padding:11px; background:#111; color:#fff; border:none; border-radius:10px; font-size:14px; cursor:pointer; font-family:inherit; font-weight:500; }
+.user-list { display:flex; flex-direction:column; gap:8px; }
+.user-item { display:flex; align-items:center; gap:11px; padding:12px; border:1px solid #e5e5e5; border-radius:12px; cursor:pointer; }
+.user-item:hover { background:#f8f8f8; }
+.user-item.sel { border:2px solid #1976D2; background:#E3F2FD; }
+.user-name { font-size:15px; font-weight:500; }
+.pt { display:flex; gap:7px; margin-top:5px; }
+.pb { flex:1; padding:9px; border-radius:10px; border:1px solid #e5e5e5; font-size:13px; cursor:pointer; font-family:inherit; background:#f8f8f8; text-align:center; }
+.pb.pn { background:#E3F2FD; border-color:#90CAF9; color:#1565C0; font-weight:600; }
+.pb.pu { background:#FFEBEE; border-color:#EF9A9A; color:#C62828; font-weight:600; }
+.sr { display:flex; align-items:center; justify-content:space-between; padding:14px 0; border-bottom:1px solid #f0f0f0; }
+.tog-wrap { position:relative; width:48px; height:26px; cursor:pointer; display:inline-block; }
+.tog-wrap input { opacity:0; width:0; height:0; position:absolute; }
+.tog-track { position:absolute; inset:0; border-radius:26px; background:#ddd; transition:background 0.2s; }
+.tog-wrap input:checked + .tog-track { background:#1976D2; }
+.tog-thumb { position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.3); pointer-events:none; transition:left 0.15s; }
+.tog-wrap input:checked ~ .tog-thumb { left:25px; }
+.detail-meta { display:flex; gap:14px; margin-bottom:14px; flex-wrap:wrap; }
+.dm-lbl { font-size:11px; color:#888; margin-bottom:2px; font-weight:500; }
+.dm-val { font-size:13px; display:flex; align-items:center; gap:5px; }
+.detail-note-box { font-size:13px; color:#555; line-height:1.5; background:#f8f8f8; border-radius:10px; padding:10px; margin-bottom:12px; }
+.warn-box { background:#FFEBEE; border-radius:10px; padding:12px; margin-bottom:14px; font-size:13px; color:#C62828; line-height:1.5; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="hdr">
+    <div>
+      <div class="app-title">Lavori</div>
+      <div class="greeting" id="greeting">Seleziona il tuo nome</div>
+    </div>
+    <div class="hdr-r">
+      <div class="icon-btn" onclick="openModal('settings')">&#9881;</div>
+      <div class="user-btn" onclick="openModal('user')">
+        <div class="av av-none" id="hav">?</div>
+        <span id="hname">Chi sei?</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" onclick="setTab(0,this)">I miei<br>lavori</button>
+    <button class="tab" onclick="setTab(1,this)">Da<br>assegnare</button>
+    <button class="tab" onclick="setTab(2,this)">In carico<br>ad altri</button>
+    <button class="tab" onclick="setTab(3,this)">Riepilogo</button>
+  </div>
+
+  <div class="abar">
+    <button class="btn-new" onclick="openModal('form',{})">+ Nuovo lavoro</button>
+    <div class="btn-mic" onclick="startMic()">&#127908;</div>
+  </div>
+
+  <div id="main-content"></div>
+  <div id="bottom-el" class="pb-end"></div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay" onclick="onOverlayClick(event)">
+  <div class="modal-box">
+    <div id="modal-inner"></div>
+  </div>
+</div>
+
+<script>
+var USERS = [
+  {id:'mm',name:'Montanari Michele',initials:'MM',av:'av-mm'},
+  {id:'lm',name:'Lanza Michele',initials:'LM',av:'av-lm'},
+  {id:'rf',name:'Riso Francesco',initials:'RF',av:'av-rf'},
+  {id:'om',name:'Olivieri Mario',initials:'OM',av:'av-om'}
+];
+var CU=null, TAB=0, COMPACT=false, PANEL=null;
+var AFU='', AFF='', AFT='';
+var LNOTES=false, LMODAL=false, RNOTES=null, RMODAL=null, INTERIM='';
+var NID=1, NDB={}, NXT=6;
+
+function today(){ return new Date().toISOString().split('T')[0]; }
+function nl(){
+  var d=new Date();
+  return d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'2-digit'})+' '+
+         d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+}
+function fd(d){ if(!d)return''; var p=d.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+function gu(id){ for(var i=0;i<USERS.length;i++) if(USERS[i].id===id) return USERS[i]; return null; }
+function getTask(id){ for(var i=0;i<tasks.length;i++) if(tasks[i].id===id) return tasks[i]; return null; }
+function eh(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function avH(id,s){
+  s=s||24; var u=gu(id), fs=Math.floor(s*0.38);
+  if(!u) return '<div class="av av-none" style="width:'+s+'px;height:'+s+'px;font-size:'+fs+'px">?</div>';
+  return '<div class="av '+u.av+'" style="width:'+s+'px;height:'+s+'px;font-size:'+fs+'px">'+u.initials+'</div>';
+}
+function byUrg(a){ return a.slice().sort(function(x,y){return (y.priority==='urgent')-(x.priority==='urgent');}); }
+
+var tasks=[
+  {id:1,title:'Verifica impianto elettrico magazzino',note:'Controllare le prese sul lato nord',assignee:'mm',created:'2025-03-10',due:'2025-03-20',priority:'normal',closed:null},
+  {id:2,title:'Ordine materiale rifacimento pavimento',note:'Chiamare fornitore Rossi, preventivo',assignee:null,created:'2025-03-12',due:'',priority:'urgent',closed:null},
+  {id:3,title:'Manutenzione muletto',note:'Tagliando annuale scaduto',assignee:'rf',created:'2025-03-08',due:'',priority:'normal',closed:'2025-03-14'},
+  {id:4,title:'Revisione estintori zona B',note:'',assignee:'lm',created:'2025-03-13',due:'2025-03-18',priority:'urgent',closed:null},
+  {id:5,title:'Pulizia filtri impianto aria',note:'Filtri da ordinare prima',assignee:'om',created:'2025-02-20',due:'',priority:'normal',closed:'2025-03-01'}
+];
+
+function mkUserOptions(selId){
+  var h='<option value="">— Da assegnare —</option>';
+  for(var i=0;i<USERS.length;i++){
+    var u=USERS[i], s=u.id===selId?' selected':'';
+    h+='<option value="'+u.id+'"'+s+'>'+u.name+'</option>';
+  }
+  return h;
+}
+function mkFilterOptions(selId){
+  var h='<option value="">Tutti</option>';
+  for(var i=0;i<USERS.length;i++){
+    var u=USERS[i], p=u.name.split(' '), s=u.id===selId?' selected':'';
+    h+='<option value="'+u.id+'"'+s+'>'+p[1]+' '+p[0]+'</option>';
+  }
+  return h;
+}
+
+function openModal(type,data){
+  var inn=document.getElementById('modal-inner');
+  var h='';
+  if(type==='user'){
+    h='<button class="xcl" onclick="closeModal()">&#10005;</button><div class="modal-title">Chi sei?</div><div class="user-list">';
+    for(var i=0;i<USERS.length;i++){
+      var u=USERS[i], sel=(CU&&u.id===CU.id)?' sel':'';
+      h+='<div class="user-item'+sel+'" onclick="selUser(\''+u.id+'\')">'+avH(u.id,40)+'<div class="user-name">'+u.name+'</div></div>';
+    }
+    h+='</div>';
+  } else if(type==='form'){
+    var editId=(data&&data.editId!=null)?data.editId:null;
+    var t=editId!=null?getTask(editId):null;
+    var fT=t?t.title:'', fN=t?t.note:(data&&data.note?data.note:'');
+    var fP=t?t.priority:'normal', fD=t?t.due:'';
+    var fA=t?(t.assignee||''):(CU?CU.id:''), fC=t?t.created:today();
+    h='<button class="xcl" onclick="closeModal()">&#10005;</button>';
+    h+='<div class="modal-title">'+(t?'Modifica lavoro':'Nuovo lavoro')+'</div>';
+    h+='<div class="fi"><label>Data creazione</label><input type="date" id="nt-c" value="'+fC+'"/></div>';
+    h+='<div class="fi"><label>Titolo (breve)</label><input id="nt-t" value="'+eh(fT)+'" placeholder="Es: Riparazione cancello"/></div>';
+    h+='<div class="fi"><label>Note &nbsp;<button id="mm-btn" class="nb nb-t" onclick="toggleMicModal()">&#127908; Detta</button></label>';
+    h+='<textarea id="nt-n" placeholder="Dettagli, materiali...">'+eh(fN)+'</textarea></div>';
+    h+='<div class="fi"><label>Priorita\'</label><div class="pt">';
+    h+='<button class="pb'+(fP==='normal'?' pn':'')+'" id="pb-n" onclick="sp(\'normal\')">Normale</button>';
+    h+='<button class="pb'+(fP==='urgent'?' pu':'')+'" id="pb-u" onclick="sp(\'urgent\')">&#128308; Urgente</button>';
+    h+='</div></div>';
+    h+='<div class="fi"><label>Scadenza (opzionale)</label><input type="date" id="nt-d" value="'+fD+'"/></div>';
+    h+='<div class="fi"><label>Assegna a</label><select id="nt-a">'+mkUserOptions(fA)+'</select></div>';
+    h+='<div class="ma"><button class="bc" onclick="closeModal()">Annulla</button>';
+    h+='<button class="bs" onclick="saveTask('+(editId!=null?editId:'null')+')">'+(t?'Salva modifiche':'Salva')+'</button></div>';
+  } else if(type==='assign'){
+    h='<button class="xcl" onclick="closeModal()">&#10005;</button><div class="modal-title">Assegna lavoro</div><div class="user-list">';
+    for(var i=0;i<USERS.length;i++){
+      var u=USERS[i];
+      h+='<div class="user-item" onclick="doAssign('+data+',\''+u.id+'\')">'+avH(u.id,38)+'<div class="user-name">'+u.name+'</div></div>';
+    }
+    h+='</div>';
+  } else if(type==='close'){
+    var t2=getTask(data); if(!t2)return;
+    h='<button class="xcl" onclick="closeModal()">&#10005;</button>';
+    if(CU&&t2.assignee&&t2.assignee!==CU.id){
+      var u2=gu(t2.assignee);
+      h+='<div class="modal-title">Attenzione</div>';
+      h+='<div class="warn-box">Questo lavoro e\' in carico a <strong>'+u2.name+'</strong>.<br>Per chiuderlo devi prima prenderlo in carico dal tab "In carico ad altri".</div>';
+      h+='<div class="ma"><button class="bs" onclick="closeModal()">Capito</button></div>';
+    } else {
+      h+='<div class="modal-title">Chiudi lavoro</div>';
+      h+='<div class="fi"><label>Data chiusura</label><input type="date" id="cl-d" value="'+today()+'"/></div>';
+      h+='<div class="ma"><button class="bc" onclick="closeModal()">Annulla</button>';
+      h+='<button class="bs" onclick="confirmClose('+data+')" style="background:#2E7D32">Conferma</button></div>';
+    }
+  } else if(type==='detail'){
+    var t3=getTask(data); if(!t3)return;
+    var u3=gu(t3.assignee), arch=!!t3.closed;
+    var ismine=CU&&t3.assignee===CU.id;
+    var exp=!!(t3.due&&t3.due<today());
+    h='<button class="xcl" onclick="closeModal()">&#10005;</button>';
+    h+='<div class="modal-title">'+eh(t3.title)+'</div>';
+    if(t3.priority==='urgent') h+='<div style="display:inline-flex;align-items:center;gap:5px;background:#FFEBEE;border:1px solid #EF9A9A;border-radius:20px;padding:4px 12px;font-size:12px;color:#C62828;margin-bottom:12px">&#128308; Urgente</div>';
+    h+='<div class="detail-meta">';
+    h+='<div><div class="dm-lbl">Creato il</div><div class="dm-val">'+fd(t3.created)+'</div></div>';
+    if(t3.due){
+      h+='<div><div class="dm-lbl" style="color:'+(exp?'#C62828':'#888')+'">'+(exp?'&#9888; Scaduto il':'Scadenza')+'</div>';
+      h+='<div class="dm-val" style="color:'+(exp?'#C62828':'inherit')+'">'+fd(t3.due)+'</div></div>';
+    }
+    h+='<div><div class="dm-lbl">Assegnato a</div><div class="dm-val">';
+    h+=t3.assignee?(avH(t3.assignee,20)+' '+u3.name):'<span style="color:#999">Non assegnato</span>';
+    h+='</div></div>';
+    if(arch) h+='<div><div class="dm-lbl">Chiuso il</div><div class="dm-val">'+fd(t3.closed)+'</div></div>';
+    h+='</div>';
+    if(t3.note) h+='<div class="detail-note-box">'+eh(t3.note)+'</div>';
+    h+='<div class="ma">';
+    h+='<button class="bc" onclick="openModal(\'form\',{editId:'+data+'})">&#9998; Modifica</button>';
+    if(!arch&&ismine) h+='<button class="bs" onclick="openModal(\'close\','+data+')" style="background:#2E7D32">Chiudi lavoro</button>';
+    h+='</div>';
+  } else if(type==='settings'){
+    h='<button class="xcl" onclick="closeModal()">&#10005;</button><div class="modal-title">Impostazioni</div>';
+    h+='<div class="sr"><div><div style="font-size:14px">Vista compatta</div>';
+    h+='<div style="font-size:12px;color:#888;margin-top:2px">Note visibili solo toccando il lavoro</div></div>';
+    h+='<label class="tog-wrap"><input type="checkbox"'+(COMPACT?' checked':'')+' onchange="COMPACT=this.checked;closeModal()"><div class="tog-track"></div><div class="tog-thumb"></div></label>';
+    h+='</div>';
+  }
+  inn.innerHTML=h;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal(){
+  if(RMODAL){try{RMODAL.stop();}catch(e){}} LMODAL=false;
+  document.getElementById('modal-overlay').classList.remove('open');
+  render();
+}
+function onOverlayClick(e){ if(e.target===document.getElementById('modal-overlay')) closeModal(); }
+function selUser(id){
+  CU=gu(id);
+  document.getElementById('hav').className='av '+CU.av;
+  document.getElementById('hav').textContent=CU.initials;
+  document.getElementById('hname').textContent=CU.name.split(' ')[0];
+  document.getElementById('greeting').textContent='Ciao, '+CU.name.split(' ')[0];
+  closeModal();
+}
+function doAssign(id,uid){ var t=getTask(id); if(t)t.assignee=uid; closeModal(); }
+function confirmClose(id){ var t=getTask(id); if(t)t.closed=document.getElementById('cl-d').value||today(); closeModal(); }
+function sp(p){
+  document.getElementById('pb-n').className='pb'+(p==='normal'?' pn':'');
+  document.getElementById('pb-u').className='pb'+(p==='urgent'?' pu':'');
+}
+function saveTask(editId){
+  var te=document.getElementById('nt-t'), title=te.value.trim();
+  if(!title){te.style.borderColor='#D32F2F';te.focus();return;}
+  if(RMODAL){try{RMODAL.stop();}catch(e){}}
+  var priority=document.getElementById('pb-u').classList.contains('pu')?'urgent':'normal';
+  var note=document.getElementById('nt-n').value.trim();
+  var assignee=document.getElementById('nt-a').value||null;
+  var created=document.getElementById('nt-c').value||today();
+  var due=document.getElementById('nt-d').value||'';
+  if(editId!=null){
+    var t=getTask(editId);
+    if(t){t.title=title;t.note=note;t.assignee=assignee;t.created=created;t.due=due;t.priority=priority;}
+  } else {
+    tasks.unshift({id:NXT++,title:title,note:note,assignee:assignee,created:created,due:due,priority:priority,closed:null});
+  }
+  closeModal();
+}
+
+function render(){
+  document.getElementById('app').classList.toggle('compact',COMPACT);
+  var open=tasks.filter(function(t){return !t.closed;});
+  var closed=tasks.filter(function(t){return t.closed;});
+  var h='';
+
+  if(TAB===0){
+    // I MIEI LAVORI
+    if(!CU){
+      h='<div class="empty">Seleziona il tuo nome in alto a destra</div>';
+    } else {
+      var mine=byUrg(open.filter(function(t){return t.assignee===CU.id;}));
+      if(!mine.length){
+        h='<div class="empty">Nessun lavoro assegnato a te</div>';
+      } else {
+        h='<div class="cards">';
+        for(var i=0;i<mine.length;i++){
+          h+=mkCard(mine[i], mine[i].priority==='urgent'?'c-urg':'c-mine',
+            '<button class="sbtn sb-c" onclick="openModal(\'close\','+mine[i].id+');event.stopPropagation()">Chiudi</button>');
+        }
+        h+='</div>';
+      }
+    }
+  } else if(TAB===1){
+    // DA ASSEGNARE
+    var una=byUrg(open.filter(function(t){return !t.assignee;}));
+    if(!una.length){
+      h='<div class="empty">Nessun lavoro da assegnare</div>';
+    } else {
+      h='<div class="cards">';
+      for(var i=0;i<una.length;i++){
+        h+=mkCard(una[i], una[i].priority==='urgent'?'c-urg':'c-una',
+          '<button class="sbtn sb-a" onclick="openModal(\'assign\','+una[i].id+');event.stopPropagation()">Assegna</button>');
+      }
+      h+='</div>';
+    }
+  } else if(TAB===2){
+    // IN CARICO AD ALTRI
+    var cuId=CU?CU.id:'';
+    var oth=byUrg(open.filter(function(t){return t.assignee&&t.assignee!==cuId;}));
+    if(!oth.length){
+      h='<div class="empty">Nessun lavoro in carico agli altri</div>';
+    } else {
+      h='<div class="cards">';
+      for(var i=0;i<oth.length;i++){
+        h+=mkCard(oth[i], oth[i].priority==='urgent'?'c-urg':'c-oth',
+          '<button class="sbtn sb-t" onclick="takeOver('+oth[i].id+');event.stopPropagation()">Prendi in carico</button>');
+      }
+      h+='</div>';
+    }
+  } else {
+    // RIEPILOGO
+    h='<div class="recap">';
+    for(var i=0;i<USERS.length;i++){
+      var u=USERS[i];
+      var mine2=byUrg(open.filter(function(t){return t.assignee===u.id;}));
+      h+='<div class="rc-block">';
+      h+='<div class="rc-head">'+avH(u.id,26)+'<span class="rc-name">'+u.name+'</span><span class="rc-cnt">'+mine2.length+'</span></div>';
+      if(!mine2.length){ h+='<div class="rc-none">Nessun lavoro aperto</div>'; }
+      else {
+        for(var k=0;k<mine2.length;k++){
+          var t=mine2[k], exp=!!(t.due&&t.due<today());
+          h+='<div class="rc-row" onclick="openModal(\'detail\','+t.id+')">';
+          h+='<span style="font-size:10px;color:'+(t.priority==='urgent'?'#D32F2F':'#ccc')+'">&#9679;</span>';
+          h+='<span class="rc-ttl">'+eh(t.title)+'</span>';
+          if(t.priority==='urgent') h+='<span style="font-size:10px;color:#D32F2F;font-weight:600">URG</span>';
+          if(t.due) h+='<span style="font-size:10px;color:'+(exp?'#D32F2F':'#999')+';white-space:nowrap">'+(exp?'&#9888; ':'')+fd(t.due)+'</span>';
+          h+='</div>';
+        }
+      }
+      h+='</div>';
+    }
+    // Da assegnare nel riepilogo
+    var unas2=byUrg(open.filter(function(t){return !t.assignee;}));
+    if(unas2.length){
+      h+='<div class="rc-block">';
+      h+='<div class="rc-head"><span style="font-size:18px">&#63743;</span><span class="rc-name" style="margin-left:2px">Da assegnare</span><span class="rc-cnt">'+unas2.length+'</span></div>';
+      for(var k=0;k<unas2.length;k++){
+        var t=unas2[k];
+        h+='<div class="rc-row" onclick="openModal(\'detail\','+t.id+')">';
+        h+='<span style="font-size:10px;color:#F57C00">&#9679;</span>';
+        h+='<span class="rc-ttl">'+eh(t.title)+'</span>';
+        if(t.priority==='urgent') h+='<span style="font-size:10px;color:#D32F2F;font-weight:600">URG</span>';
+        h+='</div>';
+      }
+      h+='</div>';
+    }
+    h+='</div>';
+  }
+
+  document.getElementById('main-content').innerHTML=h;
+  renderBot(closed);
+}
+
+function mkCard(t,stripe,act){
+  var u=gu(t.assignee), arch=!!t.closed, exp=!!(t.due&&t.due<today());
+  var tg='';
+  if(!t.assignee) tg='<span class="tag t-una">Da assegnare</span>';
+  else tg='<div style="display:flex;align-items:center;gap:3px">'+avH(t.assignee,16)+'<span class="tag t-blu">'+u.initials+'</span></div>';
+  if(t.priority==='urgent') tg+='<span class="tag t-urg">&#128308; Urgente</span>';
+  if(arch) tg+='<span class="tag t-arc">Chiuso '+fd(t.closed)+'</span>';
+  if(!arch&&t.due) tg+='<span class="tag '+(exp?'t-exp':'t-due')+'">'+(exp?'Scaduto':'Entro')+' '+fd(t.due)+'</span>';
+  var h='<div class="card '+stripe+'" onclick="onCC(this,'+t.id+')">';
+  h+='<div class="card-top"><span class="card-title">'+eh(t.title)+'</span>'+(arch?'':act)+'</div>';
+  h+='<div class="card-meta">'+tg+'<span class="card-date">'+fd(t.created)+'</span></div>';
+  if(t.note) h+='<div class="card-note">'+eh(t.note)+'</div>';
+  h+='</div>';
+  return h;
+}
+
+function onCC(el,id){ if(COMPACT)el.classList.toggle('show-note'); else openModal('detail',id); }
+function takeOver(id){
+  if(!CU){alert('Seleziona prima il tuo nome.');return;}
+  var t=getTask(id); if(t){t.assignee=CU.id;render();}
+}
+function setTab(i,el){
+  TAB=i;
+  var tabs=document.querySelectorAll('.tab');
+  for(var j=0;j<tabs.length;j++) tabs[j].classList.remove('on');
+  el.classList.add('on');
+  render();
+}
+
+function renderBot(closed){
+  var un=CU?(NDB[CU.id]||[]):[];
+  var fil=closed.slice();
+  if(AFU) fil=fil.filter(function(t){return t.assignee===AFU;});
+  if(AFF) fil=fil.filter(function(t){return t.closed>=AFF;});
+  if(AFT) fil=fil.filter(function(t){return t.closed<=AFT;});
+  var hf=!!(AFU||AFF||AFT);
+  var al=(hf&&PANEL==='arch')?(fil.length+'/'+closed.length):closed.length;
+  var h='<div class="bot-row">';
+  h+='<div class="bot-toggle'+(PANEL==='arch'?' on':'')+'" onclick="togglePanel(\'arch\')">';
+  h+='<div class="bt-left"><span>&#128193;</span><span class="bt-lbl">Archivio</span><span class="bt-cnt">'+al+'</span></div>';
+  h+='<span style="font-size:10px;color:#999">'+(PANEL==='arch'?'&#9650;':'&#9660;')+'</span></div>';
+  h+='<div class="bot-toggle'+(PANEL==='notes'?' on':'')+'" onclick="togglePanel(\'notes\')">';
+  h+='<div class="bt-left"><span>&#128203;</span><span class="bt-lbl">Appunti</span><span class="bt-cnt">'+un.length+'</span></div>';
+  h+='<span style="font-size:10px;color:#999">'+(PANEL==='notes'?'&#9650;':'&#9660;')+'</span></div>';
+  h+='</div>';
+  if(PANEL==='arch'){
+    var b='<div class="af"><select onchange="AFU=this.value;render()">'+mkFilterOptions(AFU)+'</select>';
+    b+='<input type="date" value="'+AFF+'" onchange="AFF=this.value;render()" title="Da"/>';
+    b+='<input type="date" value="'+AFT+'" onchange="AFT=this.value;render()" title="A"/>';
+    if(hf) b+='<button class="af-clr" onclick="AFU=\'\';AFF=\'\';AFT=\'\';render()">Azzera</button>';
+    b+='</div>';
+    if(!fil.length) b+='<div class="arch-none">Nessun risultato</div>';
+    else{ b+='<div class="arch-body">'; for(var i=0;i<fil.length;i++) b+=mkCard(fil[i],'c-arc',''); b+='</div>'; }
+    h+='<div class="bot-panel">'+b+'</div>';
+  }
+  if(PANEL==='notes'){
+    var b='<div class="notes-tb">';
+    b+='<button class="mic-notes'+(LNOTES?' on':'')+'" onclick="toggleSpeechNotes()"><span class="mdot"></span> '+(LNOTES?'Ferma':'Registra vocale')+'</button>';
+    if(CU) b+='<span style="display:flex;align-items:center;gap:4px;font-size:11px;color:#888">'+avH(CU.id,16)+' '+CU.name.split(' ')[0]+'</span>';
+    b+='</div>';
+    if(!CU){ b+='<div class="notes-nouser">Seleziona un utente per gli appunti</div>'; }
+    else{
+      if(LNOTES&&INTERIM) b+='<div class="interim">&#128308; '+eh(INTERIM)+'...</div>';
+      var n=NDB[CU.id]||[];
+      b+='<div class="note-list">';
+      if(!n.length) b+='<div class="notes-empty">Nessun appunto. Premi "Registra vocale".</div>';
+      else{
+        var rev=n.slice().reverse();
+        for(var i=0;i<rev.length;i++){
+          var x=rev[i];
+          b+='<div class="note-item"><div class="note-txt">'+eh(x.text)+'</div>';
+          b+='<div class="note-foot"><span class="note-dt">'+x.date+'</span>';
+          b+='<div class="note-acts"><button class="nb nb-t" onclick="noteToTask('+x.id+')">+ Lavoro</button>';
+          b+='<button class="nb nb-d" onclick="delNote('+x.id+')">Elimina</button></div></div></div>';
+        }
+      }
+      b+='</div>';
+    }
+    h+='<div class="bot-panel">'+b+'</div>';
+  }
+  document.getElementById('bottom-el').innerHTML=h;
+}
+
+function togglePanel(n){ PANEL=PANEL===n?null:n; render(); }
+function rbOnly(){ renderBot(tasks.filter(function(t){return t.closed;})); }
+function delNote(nid){
+  if(!CU)return;
+  NDB[CU.id]=(NDB[CU.id]||[]).filter(function(x){return x.id!==nid;});
+  rbOnly();
+}
+function noteToTask(nid){
+  if(!CU)return;
+  var n=(NDB[CU.id]||[]).filter(function(x){return x.id===nid;})[0];
+  if(!n)return;
+  NDB[CU.id]=(NDB[CU.id]||[]).filter(function(x){return x.id!==nid;});
+  openModal('form',{note:n.text});
+}
+function checkSR(){
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){
+    alert('Usa Chrome o Safari su iOS per il riconoscimento vocale.');
+    return false;
+  }
+  return true;
+}
+function toggleMicModal(){
+  if(!checkSR())return;
+  if(LMODAL){if(RMODAL)RMODAL.stop();return;}
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  RMODAL=new SR(); RMODAL.lang='it-IT'; RMODAL.continuous=true; RMODAL.interimResults=true;
+  var acc='';
+  RMODAL.onstart=function(){
+    LMODAL=true;
+    var nf=document.getElementById('nt-n'); if(nf) acc=nf.value;
+    var btn=document.getElementById('mm-btn');
+    if(btn){btn.innerHTML='&#9209; Ferma';btn.style.background='#FFEBEE';btn.style.color='#C62828';}
+  };
+  RMODAL.onend=function(){
+    LMODAL=false;
+    var btn=document.getElementById('mm-btn');
+    if(btn){btn.innerHTML='&#127908; Detta';btn.style.background='';btn.style.color='';}
+  };
+  RMODAL.onerror=function(){LMODAL=false;};
+  RMODAL.onresult=function(e){
+    var fin='',int='';
+    for(var i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal) fin+=e.results[i][0].transcript;
+      else int+=e.results[i][0].transcript;
+    }
+    if(fin.trim()) acc+=(acc?' ':'')+fin.trim();
+    var nf=document.getElementById('nt-n');
+    if(nf) nf.value=acc+(int?' '+int:'');
+  };
+  RMODAL.start();
+}
+function startMic(){
+  if(!checkSR())return;
+  openModal('form',{});
+  setTimeout(function(){toggleMicModal();},300);
+}
+function toggleSpeechNotes(){
+  if(!checkSR())return;
+  if(LNOTES){if(RNOTES)RNOTES.stop();return;}
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  RNOTES=new SR(); RNOTES.lang='it-IT'; RNOTES.continuous=true; RNOTES.interimResults=true;
+  RNOTES.onstart=function(){LNOTES=true;INTERIM='';rbOnly();};
+  RNOTES.onend=function(){LNOTES=false;INTERIM='';rbOnly();};
+  RNOTES.onerror=function(){LNOTES=false;INTERIM='';rbOnly();};
+  RNOTES.onresult=function(e){
+    var fin='',int='';
+    for(var i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal) fin+=e.results[i][0].transcript;
+      else int+=e.results[i][0].transcript;
+    }
+    INTERIM=int;
+    if(fin.trim()){
+      if(!NDB[CU.id]) NDB[CU.id]=[];
+      NDB[CU.id].push({id:NID++,text:fin.trim(),date:nl()});
+      INTERIM='';
+    }
+    rbOnly();
+  };
+  RNOTES.start();
+}
+
+render();
+</script>
+</body>
+</html>
