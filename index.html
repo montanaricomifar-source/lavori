@@ -245,7 +245,7 @@ async function loadTasks() {
   if(!supa) return;
   try {
     var res = await supa.from('lavori_tasks').select('*').order('created_at', {ascending: false});
-    if(res.error) { console.error('loadTasks error:', res.error); return; }
+    if(res.error) { console.error('loadTasks error:', res.error.message, res.error.code, res.error.details, res.error.hint); return; }
     tasks = (res.data || []).map(dbRow2Task);
     DB_READY = true;
     render();
@@ -258,7 +258,7 @@ async function dbInsertTask(t) {
   try {
     var row = task2DbRow(t);
     var res = await supa.from('lavori_tasks').insert([row]).select().single();
-    if(res.error) { console.error('insert error:', res.error); return null; }
+    if(res.error) { console.error('insert error:', res.error.message, res.error.code); return null; }
     return res.data.id;
   } catch(e) { console.error('insert exception:', e); return null; }
 }
@@ -268,7 +268,7 @@ async function dbUpdateTask(t) {
   try {
     var row = task2DbRow(t);
     var res = await supa.from('lavori_tasks').update(row).eq('id', t.id);
-    if(res.error) console.error('update error:', res.error);
+    if(res.error) console.error('update error:', res.error.message, res.error.code);
   } catch(e) { console.error('update exception:', e); }
 }
 
@@ -284,7 +284,7 @@ async function loadNotes() {
   try {
     var res = await supa.from('lavori_notes').select('*')
       .eq('user_id', CU.id).order('created_at', {ascending: false});
-    if(res.error) { console.error('loadNotes error:', res.error); return; }
+    if(res.error) { console.error('loadNotes error:', res.error.message, res.error.code); return; }
     NDB[CU.id] = (res.data || []).map(function(r){
       return {id: r.id, text: r.text, date: r.note_date};
     });
@@ -298,7 +298,7 @@ async function dbInsertNote(n) {
     var res = await supa.from('lavori_notes').insert([{
       user_id: CU.id, text: n.text, note_date: n.date
     }]).select().single();
-    if(res.error) { console.error('insertNote error:', res.error); return null; }
+    if(res.error) { console.error('insertNote error:', res.error.message, res.error.code); return null; }
     return res.data.id;
   } catch(e) { console.error('insertNote exception:', e); return null; }
 }
@@ -367,13 +367,13 @@ function openModal(type,data){
     h+='<div class="fi"><label>Scadenza (opzionale)</label><input type="date" id="nt-d" value="'+fD+'"/></div>';
     h+='<div class="fi"><label>Assegna a</label><select id="nt-a">'+mkUserOptions(fA)+'</select></div>';
     h+='<div class="ma"><button class="bc" onclick="closeModal()">Annulla</button>';
-    h+='<button class="bs" onclick="saveTask('+(editId!=null?editId:'null')+','+(fromNoteId!=null?fromNoteId:'null')+')">'+(t?'Salva modifiche':'Salva')+'</button></div>';
+    h+='<button class="bs" onclick="saveTask('+(editId!=null?'\''+editId+'\'':'null')+','+(fromNoteId!=null?'\''+fromNoteId+'\'':'null')+')">'+(t?'Salva modifiche':'Salva')+'</button></div>';
     if(fromNoteId!=null) h+='<p style="font-size:11px;color:#888;margin-top:8px;text-align:center">Salvando, l&#39;appunto verr&#224; eliminato</p>';
   } else if(type==='assign'){
     h='<button class="xcl" onclick="closeModal()">&#10005;</button><div class="modal-title">Assegna lavoro</div><div class="user-list">';
     for(var i=0;i<USERS.length;i++){
       var u=USERS[i];
-      h+='<div class="user-item" onclick="doAssign('+data+',\''+u.id+'\')">'+avH(u.id,38)+'<div class="user-name">'+u.name+'</div></div>';
+      h+='<div class="user-item" onclick="doAssign(\''+data+'\',\''+u.id+'\')">'+avH(u.id,38)+'<div class="user-name">'+u.name+'</div></div>';
     }
     h+='</div>';
   } else if(type==='close'){
@@ -388,7 +388,7 @@ function openModal(type,data){
       h+='<div class="modal-title">Chiudi lavoro</div>';
       h+='<div class="fi"><label>Data chiusura</label><input type="date" id="cl-d" value="'+today()+'"/></div>';
       h+='<div class="ma"><button class="bc" onclick="closeModal()">Annulla</button>';
-      h+='<button class="bs" onclick="confirmClose('+data+')" style="background:#2E7D32">Conferma</button></div>';
+      h+='<button class="bs" onclick="confirmClose(\''+data+'\')" style="background:#2E7D32">Conferma</button></div>';
     }
   } else if(type==='detail'){
     var t3=getTask(data); if(!t3)return;
@@ -411,8 +411,8 @@ function openModal(type,data){
     h+='</div>';
     if(t3.note) h+='<div class="detail-note-box">'+eh(t3.note)+'</div>';
     h+='<div class="ma">';
-    h+='<button class="bc" onclick="openModal(\'form\',{editId:'+data+'})">&#9998; Modifica</button>';
-    if(!arch&&ismine) h+='<button class="bs" onclick="openModal(\'close\','+data+')" style="background:#2E7D32">Chiudi lavoro</button>';
+    h+='<button class="bc" onclick="openModal(\'form\',{editId:\''+data+'\'})">&#9998; Modifica</button>';
+    if(!arch&&ismine) h+='<button class="bs" onclick="openModal(\'close\',\''+data+'\')" style="background:#2E7D32">Chiudi lavoro</button>';
     h+='</div>';
   } else if(type==='settings'){
     h='<button class="xcl" onclick="closeModal()">&#10005;</button><div class="modal-title">Impostazioni</div>';
@@ -629,7 +629,7 @@ function render(){
         h='<div class="cards">';
         for(var i=0;i<mine.length;i++){
           h+=mkCard(mine[i], mine[i].priority==='urgent'?'c-urg':'c-mine',
-            '<button class="sbtn sb-c" onclick="openModal(\'close\','+mine[i].id+');event.stopPropagation()">Chiudi</button>');
+            '<button class="sbtn sb-c" onclick="openModal(\'close\',\''+mine[i].id+'\');event.stopPropagation()">Chiudi</button>');
         }
         h+='</div>';
       }
@@ -643,7 +643,7 @@ function render(){
       h='<div class="cards">';
       for(var i=0;i<una.length;i++){
         h+=mkCard(una[i], una[i].priority==='urgent'?'c-urg':'c-una',
-          '<button class="sbtn sb-a" onclick="openModal(\'assign\','+una[i].id+');event.stopPropagation()">Assegna</button>');
+          '<button class="sbtn sb-a" onclick="openModal(\'assign\',\''+una[i].id+'\');event.stopPropagation()">Assegna</button>');
       }
       h+='</div>';
     }
@@ -673,7 +673,7 @@ function render(){
       else {
         for(var k=0;k<mine2.length;k++){
           var t=mine2[k], exp=!!(t.due&&t.due<today());
-          h+='<div class="rc-row" onclick="openModal(\'detail\','+t.id+')">';
+          h+='<div class="rc-row" onclick="openModal(\'detail\',\''+t.id+'\')">';
           h+='<span style="font-size:10px;color:'+(t.priority==='urgent'?'#D32F2F':'#ccc')+'">&#9679;</span>';
           h+='<span class="rc-ttl">'+eh(t.title)+'</span>';
           if(t.priority==='urgent') h+='<span style="font-size:10px;color:#D32F2F;font-weight:600">URG</span>';
@@ -690,7 +690,7 @@ function render(){
       h+='<div class="rc-head"><span style="font-size:18px">&#63743;</span><span class="rc-name" style="margin-left:2px">Da assegnare</span><span class="rc-cnt">'+unas2.length+'</span></div>';
       for(var k=0;k<unas2.length;k++){
         var t=unas2[k];
-        h+='<div class="rc-row" onclick="openModal(\'detail\','+t.id+')">';
+        h+='<div class="rc-row" onclick="openModal(\'detail\',\''+t.id+'\')">';
         h+='<span style="font-size:10px;color:#F57C00">&#9679;</span>';
         h+='<span class="rc-ttl">'+eh(t.title)+'</span>';
         if(t.priority==='urgent') h+='<span style="font-size:10px;color:#D32F2F;font-weight:600">URG</span>';
