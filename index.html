@@ -193,7 +193,7 @@ function nl(){
 }
 function fd(d){ if(!d)return''; var p=d.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
 function gu(id){ for(var i=0;i<USERS.length;i++) if(USERS[i].id===id) return USERS[i]; return null; }
-function getTask(id){ for(var i=0;i<tasks.length;i++) if(tasks[i].id===id) return tasks[i]; return null; }
+function getTask(id){ id=String(id); for(var i=0;i<tasks.length;i++) if(String(tasks[i].id)===id) return tasks[i]; return null; }
 function eh(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function avH(id,s){
   s=s||24; var u=gu(id), fs=Math.floor(s*0.38);
@@ -447,11 +447,13 @@ function selUser(id){
   loadNotes();
 }
 function doAssign(id,uid){
+  id=String(id);
   var t=getTask(id);
   if(t){ t.assignee=uid; dbUpdateTask(t); }
   closeModal();
 }
 function confirmClose(id){
+  id=String(id);
   var t=getTask(id);
   if(t){
     t.closed=document.getElementById('cl-d').value||today();
@@ -655,7 +657,7 @@ function render(){
       h='<div class="cards">';
       for(var i=0;i<oth.length;i++){
         h+=mkCard(oth[i], oth[i].priority==='urgent'?'c-urg':'c-oth',
-          '<button class="sbtn sb-t" onclick="takeOver('+oth[i].id+');event.stopPropagation()">Prendi in carico</button>');
+          '<button class="sbtn sb-t" data-id="'+String(oth[i].id)+'" onclick="takeOver(this.dataset.id);event.stopPropagation()">Prendi in carico</button>');
       }
       h+='</div>';
     }
@@ -705,13 +707,14 @@ function render(){
 
 function mkCard(t,stripe,act){
   var u=gu(t.assignee), arch=!!t.closed, exp=!!(t.due&&t.due<today());
+  var sid=String(t.id);
   var tg='';
   if(!t.assignee) tg='<span class="tag t-una">Da assegnare</span>';
   else tg='<div style="display:flex;align-items:center;gap:3px">'+avH(t.assignee,16)+'<span class="tag t-blu">'+u.initials+'</span></div>';
   if(t.priority==='urgent') tg+='<span class="tag t-urg">&#128308; Urgente</span>';
   if(arch) tg+='<span class="tag t-arc">Chiuso '+fd(t.closed)+'</span>';
   if(!arch&&t.due) tg+='<span class="tag '+(exp?'t-exp':'t-due')+'">'+(exp?'Scaduto':'Entro')+' '+fd(t.due)+'</span>';
-  var h='<div class="card '+stripe+'" onclick="onCC(this,'+t.id+')">';
+  var h='<div class="card '+stripe+'" data-id="'+sid+'" onclick="onCC(this)">';
   h+='<div class="card-top"><span class="card-title">'+eh(t.title)+'</span>'+(arch?'':act)+'</div>';
   h+='<div class="card-meta">'+tg+'<span class="card-date">'+fd(t.created)+'</span></div>';
   if(t.note) h+='<div class="card-note">'+eh(t.note)+'</div>';
@@ -719,9 +722,14 @@ function mkCard(t,stripe,act){
   return h;
 }
 
-function onCC(el,id){ if(COMPACT)el.classList.toggle('show-note'); else openModal('detail',id); }
+function onCC(el){
+  var id=el.dataset.id;
+  if(COMPACT) el.classList.toggle('show-note');
+  else openModal('detail',id);
+}
 function takeOver(id){
   if(!CU){alert('Seleziona prima il tuo nome.');return;}
+  id=String(id);
   var t=getTask(id);
   if(t){ t.assignee=CU.id; dbUpdateTask(t); render(); }
 }
