@@ -279,6 +279,18 @@ async function dbDeleteTask(id) {
   } catch(e) { console.error('delete exception:', e); }
 }
 
+function deleteTask(id) {
+  id = String(id);
+  var t = getTask(id);
+  if(!t) return;
+  var label = t.title.length > 40 ? t.title.substring(0,40)+'...' : t.title;
+  if(!confirm('Eliminare definitivamente "' + label + '"?\n\nL\u2019operazione non pu\xf2 essere annullata.')) return;
+  tasks = tasks.filter(function(x){ return String(x.id) !== id; });
+  dbDeleteTask(id);
+  closeModal();
+  render();
+}
+
 async function loadNotes() {
   if(!supa || !CU) return;
   try {
@@ -413,6 +425,9 @@ function openModal(type,data){
     h+='<div class="ma">';
     h+='<button class="bc" onclick="openModal(\'form\',{editId:\''+data+'\'})">&#9998; Modifica</button>';
     if(!arch&&ismine) h+='<button class="bs" onclick="openModal(\'close\',\''+data+'\')" style="background:#2E7D32">Chiudi lavoro</button>';
+    h+='</div>';
+    h+='<div style="margin-top:10px;text-align:center">';
+    h+='<button onclick="deleteTask(\''+data+'\')" style="background:none;border:none;color:#C62828;font-size:12px;cursor:pointer;font-family:inherit;text-decoration:underline;padding:4px 8px;">&#128465; Elimina lavoro</button>';
     h+='</div>';
   } else if(type==='settings'){
     h='<button class="xcl" onclick="closeModal()">&#10005;</button><div class="modal-title">Impostazioni</div>';
@@ -714,8 +729,9 @@ function mkCard(t,stripe,act){
   if(t.priority==='urgent') tg+='<span class="tag t-urg">&#128308; Urgente</span>';
   if(arch) tg+='<span class="tag t-arc">Chiuso '+fd(t.closed)+'</span>';
   if(!arch&&t.due) tg+='<span class="tag '+(exp?'t-exp':'t-due')+'">'+(exp?'Scaduto':'Entro')+' '+fd(t.due)+'</span>';
+  var delBtn='<button class="sbtn" style="background:#FFF0F0;border-color:#FFCDD2;color:#C62828;" onclick="deleteTask(\''+sid+'\');event.stopPropagation()">&#128465;</button>';
   var h='<div class="card '+stripe+'" data-id="'+sid+'" onclick="onCC(this)">';
-  h+='<div class="card-top"><span class="card-title">'+eh(t.title)+'</span>'+(arch?'':act)+'</div>';
+  h+='<div class="card-top"><span class="card-title">'+eh(t.title)+'</span>'+(arch?delBtn:act)+'</div>';
   h+='<div class="card-meta">'+tg+'<span class="card-date">'+fd(t.created)+'</span></div>';
   if(t.note) h+='<div class="card-note">'+eh(t.note)+'</div>';
   h+='</div>';
